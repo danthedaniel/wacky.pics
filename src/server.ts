@@ -20,6 +20,7 @@ await app.register(fastifyHelmet, {
       scriptSrc: ["'self'"],
       styleSrc: ["'self'"],
       imgSrc: ["'self'"],
+      mediaSrc: ["'self'"],
       connectSrc: ["'self'"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],

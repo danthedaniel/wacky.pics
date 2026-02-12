@@ -16,6 +16,9 @@ const MIME_TYPES: Record<string, string> = {
   ".svg": "image/svg+xml",
   ".avif": "image/avif",
   ".bmp": "image/bmp",
+  ".mp4": "video/mp4",
+  ".mov": "video/quicktime",
+  ".webm": "video/webm",
 };
 
 export function registerRoutes(app: FastifyInstance) {

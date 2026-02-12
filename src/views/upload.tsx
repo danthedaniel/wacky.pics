@@ -12,8 +12,8 @@ export function UploadPage() {
         <main>
           <h1>wacky.pics</h1>
           <div id="drop-area">
-            <p>Drop images here or click to select</p>
-            <input type="file" id="file-input" accept="image/*" multiple hidden />
+            <p>Drop images or videos here or click to select</p>
+            <input type="file" id="file-input" accept="image/*,video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" multiple hidden />
           </div>
           <div id="uploads"></div>
         </main>
