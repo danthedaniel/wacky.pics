@@ -5,6 +5,7 @@ export function UploadPage() {
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>wacky.pics</title>
+        <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
         <link rel="stylesheet" href="/assets/css/main.css" />
       </head>
       <body>
