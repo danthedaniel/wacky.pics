@@ -41,7 +41,14 @@ export function registerRoutes(app: FastifyInstance) {
       return { url: `/i/${name}` };
     });
 
-    app.get("/i/:name", async (req, reply) => {
+    app.get("/i/:name", {
+      config: {
+        rateLimit: {
+          max: 30,
+          timeWindow: "1 minute",
+        },
+      },
+    }, async (req, reply) => {
       const { name } = req.params as { name: string };
 
       // Prevent path traversal
