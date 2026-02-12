@@ -1,6 +1,6 @@
 import { join, extname } from "node:path";
 import { createReadStream } from "node:fs";
-import { stat } from "node:fs/promises";
+import { stat, utimes } from "node:fs/promises";
 import type { FastifyInstance } from "fastify";
 import { saveUpload } from "./upload";
 import { UploadPage } from "./views/upload";
@@ -69,6 +69,10 @@ export function registerRoutes(app: FastifyInstance) {
       } catch {
         return reply.code(404).send("Not found");
       }
+
+      // Touch the file so we can track its access time
+      const now = new Date();
+      await utimes(filePath, now, now);
 
       reply.type(contentType);
       return reply.send(createReadStream(filePath));
