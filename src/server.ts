@@ -14,7 +14,7 @@ const app = fastify({ logger: true });
 await app.register(fastifyHtml);
 
 await app.register(fastifyMultipart, {
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 20 * 1024 * 1024 },
 });
 
 await app.register(fastifyStatic, {
