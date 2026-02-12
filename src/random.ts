@@ -6,7 +6,7 @@ export function randomId(length = 8): string {
   const bytes = randomBytes(length);
   let result = "";
   for (let i = 0; i < length; i++) {
-    result += ALPHABET[bytes[i] % ALPHABET.length];
+    result += ALPHABET[(bytes[i] ?? 0) % ALPHABET.length];
   }
   return result;
 }
