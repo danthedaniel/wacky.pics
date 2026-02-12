@@ -4,6 +4,8 @@ set -euo pipefail
 REMOTE_HOST="deploy-wacky.pics"
 REMOTE_DIR="~/app"
 
+bun check
+
 ssh "${REMOTE_HOST}" "sudo /usr/bin/systemctl stop wacky-pics"
 
 rsync -avz --delete \

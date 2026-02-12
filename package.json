@@ -3,7 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch src/server.ts",
-    "start": "bun src/server.ts"
+    "start": "bun src/server.ts",
+    "check": "tsc --project tsconfig.json --noEmit && tsc --project jsconfig.json --noEmit"
   },
   "dependencies": {
     "@fastify/basic-auth": "^6.0.0",
