@@ -54,8 +54,7 @@ export function registerRoutes(app: FastifyInstance) {
     }, async (req, reply) => {
       const { name } = req.params as { name: string };
 
-      // Prevent path traversal
-      if (name.includes("/") || name.includes("\\") || name.includes("..")) {
+      if (!/^[a-z0-9]{1,255}\.[a-z]{1,5}$/.test(name)) {
         return reply.code(400).send("Invalid filename");
       }
 
