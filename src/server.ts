@@ -9,8 +9,16 @@ import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyHtml from "@kitajs/fastify-html-plugin";
 import { registerRoutes } from "./routes";
 
-const USERNAME = process.env["AUTH_USER"] ?? "admin";
-const PASSWORD = process.env["AUTH_PASS"] ?? "admin";
+const USERNAME = process.env["AUTH_USER"] ?? "";
+if (!USERNAME) {
+  throw new Error("AUTH_USER environment variable is not set");
+}
+
+const PASSWORD = process.env["AUTH_PASS"] ?? "";
+if (!PASSWORD) {
+  throw new Error("AUTH_PASS environment variable is not set");
+}
+
 const AUTH_COOKIE = "auth";
 const AUTH_COOKIE_MAX_AGE = 180 * 24 * 60 * 60;
 
