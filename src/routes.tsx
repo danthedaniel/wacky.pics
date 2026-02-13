@@ -1,9 +1,11 @@
 import { join, extname } from "node:path";
 import { createReadStream } from "node:fs";
 import { stat, utimes } from "node:fs/promises";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { saveUpload } from "./upload";
 import { UploadPage } from "./views/upload";
+
+type Hook = (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
 
 const UPLOADS_DIR = join(import.meta.dirname, "..", "uploads");
 
@@ -21,9 +23,9 @@ const MIME_TYPES: Record<string, string> = {
   ".webm": "video/webm",
 };
 
-export function registerRoutes(app: FastifyInstance) {
+export function registerRoutes(app: FastifyInstance, checkAuth: Hook) {
   app.after(() => {
-    const auth = { onRequest: app.basicAuth };
+    const auth = { onRequest: checkAuth };
 
     app.get("/", { ...auth }, async (_req, reply) => {
       return reply.html(<UploadPage />);
