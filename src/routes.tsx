@@ -61,13 +61,13 @@ export function registerRoutes(app: FastifyInstance) {
       const filePath = join(UPLOADS_DIR, name);
       const ext = extname(name).toLowerCase();
       const contentType = MIME_TYPES[ext];
-
       if (!contentType) {
         return reply.code(404).send("Not found");
       }
 
+      let size: number;
       try {
-        await stat(filePath);
+        size = (await stat(filePath)).size;
       } catch {
         return reply.code(404).send("Not found");
       }
@@ -76,7 +76,10 @@ export function registerRoutes(app: FastifyInstance) {
       const now = new Date();
       await utimes(filePath, now, now);
 
-      reply.type(contentType);
+      reply.header("content-type", contentType);
+      reply.header("content-length", size);
+      reply.header("content-disposition", "inline");
+      reply.header("cache-control", `public, max-age=${60 * 60 * 24 * 365}, immutable`);
       return reply.send(createReadStream(filePath));
     });
   });
