@@ -6,7 +6,7 @@ An image and video hosting site built with [Bun](https://bun.sh), [Fastify](http
 
 - [Bun](https://bun.sh)
 - [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
-- A Linux server with root SSH access
+- A Linux server with root SSH access (tested with Debian 13)
 - A domain name with an A record pointing to the server
 
 ## Local development
