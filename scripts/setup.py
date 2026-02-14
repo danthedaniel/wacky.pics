@@ -8,44 +8,45 @@ ANSIBLE_DIR = os.path.join(REPO_ROOT, "ansible")
 GROUP_VARS_DIR = os.path.join(ANSIBLE_DIR, "inventory", "group_vars", "all")
 
 
-def read_example(path):
+def read_example(path: str):
     """Parse a YAML example file into a list of (key, hint) tuples."""
-    entries = []
+    entries: list[tuple[str, str]] = []
+
     with open(path) as f:
         for line in f:
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
+
             key, _, hint = line.partition(":")
             hint = hint.strip().strip('"')
             entries.append((key.strip(), hint))
+
     return entries
 
 
-def prompt_file(example_path):
-    """Prompt the user for each key in an example file and write the result.
-    Returns the target path, or None if the target file already exists."""
+def prompt_file(example_path: str):
+    """Prompt the user for each key in an example file and write the result."""
     target_path = example_path.removesuffix(".example")
     rel_path = os.path.relpath(target_path, REPO_ROOT)
 
     if os.path.exists(target_path):
         print(f"Skipping {rel_path} (already exists)")
-        return None
+        return
 
     entries = read_example(example_path)
 
     print(f"\n--- {rel_path} ---\n")
 
-    lines = []
+    lines: list[str] = []
     for key, hint in entries:
         value = input(f"  {key} ({hint}): ")
         lines.append(f'{key}: "{value}"')
 
     with open(target_path, "w") as f:
-        f.write("\n".join(lines) + "\n")
-    print(f"\nWrote {rel_path}")
+        _ = f.write("\n".join(lines) + "\n")
 
-    return target_path
+    print(f"\nWrote {rel_path}")
 
 
 def main():
