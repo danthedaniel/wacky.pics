@@ -13,4 +13,9 @@ rsync -avz --delete \
   --exclude='.git/' \
   ./ "${REMOTE_HOST}:${REMOTE_DIR}/"
 
-ssh "${REMOTE_HOST}" "cd ${REMOTE_DIR} && ~/.bun/bin/bun install --frozen-lockfile && sudo /usr/bin/systemctl start wacky-pics"
+ssh "${REMOTE_HOST}" "
+  set -euo pipefail
+  cd ${REMOTE_DIR}
+  ~/.bun/bin/bun install --frozen-lockfile
+  sudo /usr/bin/systemctl start wacky-pics
+"
