@@ -1,0 +1,19 @@
+app_user: web
+app_dir: "/home/{{ app_user }}/app"
+bun_path: "/home/{{ app_user }}/.bun/bin/bun"
+app_port: 3000
+system_packages:
+  - htop
+  - vim
+  - sudo
+  - unattended-upgrades
+  - rsync
+  - unzip
+  - nginx
+  - certbot
+  - python3-certbot-nginx
+  - ufw
+ufw_allowed_ports:
+  - { port: 22, proto: tcp }
+  - { port: 80, proto: tcp }
+  - { port: 443, proto: tcp }

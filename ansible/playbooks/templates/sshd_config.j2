@@ -1,0 +1,18 @@
+# {{ ansible_managed }}
+
+Include /etc/ssh/sshd_config.d/*.conf
+
+PermitRootLogin prohibit-password
+PubkeyAuthentication yes
+PasswordAuthentication no
+KbdInteractiveAuthentication no
+UsePAM yes
+
+X11Forwarding yes
+PrintMotd no
+
+AcceptEnv LANG LC_* COLORTERM NO_COLOR
+
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+ClientAliveInterval 120

@@ -1,0 +1,5 @@
+domain_name: "Domain name for the site"
+certbot_email: "Email address for TLS certificate alerts"
+server_ip: "IP address of the server"
+auth_user: "Username to sign into the site"
+auth_pass: "Password to sign into the site"

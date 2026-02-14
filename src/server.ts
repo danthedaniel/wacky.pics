@@ -7,17 +7,8 @@ import fastifyCookie from "@fastify/cookie";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyHtml from "@kitajs/fastify-html-plugin";
+import config from "./config";
 import { registerRoutes } from "./routes";
-
-const USERNAME = process.env["AUTH_USER"] ?? "";
-if (!USERNAME) {
-  throw new Error("AUTH_USER environment variable is not set");
-}
-
-const PASSWORD = process.env["AUTH_PASS"] ?? "";
-if (!PASSWORD) {
-  throw new Error("AUTH_PASS environment variable is not set");
-}
 
 const AUTH_COOKIE = "auth";
 const AUTH_COOKIE_MAX_AGE = 180 * 24 * 60 * 60;
@@ -61,11 +52,11 @@ await app.register(fastifyCookie);
 
 function checkUserPass(username: string, password: string) {
   const usernameOk =
-    username.length === USERNAME.length &&
-    crypto.timingSafeEqual(Buffer.from(username), Buffer.from(USERNAME));
+    username.length === config.authUser.length &&
+    crypto.timingSafeEqual(Buffer.from(username), Buffer.from(config.authUser));
   const passwordOk =
-    password.length === PASSWORD.length &&
-    crypto.timingSafeEqual(Buffer.from(password), Buffer.from(PASSWORD));
+    password.length === config.authPass.length &&
+    crypto.timingSafeEqual(Buffer.from(password), Buffer.from(config.authPass));
   if (!usernameOk || !passwordOk) {
     return false;
   }
@@ -82,7 +73,7 @@ await app.register(fastifyBasicAuth, {
 
     done();
   },
-  authenticate: { realm: "wacky.pics" },
+  authenticate: { realm: config.siteName },
 });
 
 function cookieAuth(cookie: string) {
@@ -119,7 +110,7 @@ async function checkAuth(req: FastifyRequest, reply: FastifyReply) {
     await basicAuth(req, reply);
   }
 
-  reply.setCookie(AUTH_COOKIE, `${USERNAME}:${PASSWORD}`, {
+  reply.setCookie(AUTH_COOKIE, `${config.authUser}:${config.authPass}`, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

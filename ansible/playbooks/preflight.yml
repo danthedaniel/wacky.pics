@@ -1,0 +1,26 @@
+- name: Preflight checks
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Validate required variables
+      ansible.builtin.assert:
+        that:
+          - domain_name | length > 0
+          - server_ip | length > 0
+        fail_msg: "Required variables not configured in inventory/group_vars/all/vars.yml"
+
+    - name: Resolve domain A record
+      ansible.builtin.command: "dig +short A {{ domain_name }}"
+      register: dns_lookup
+      changed_when: false
+
+    - name: Verify domain points to server IP
+      ansible.builtin.assert:
+        that:
+          - server_ip in dns_lookup.stdout_lines
+        fail_msg: >-
+          {{ domain_name }} does not resolve to {{ server_ip }}.
+          Got: {{ dns_lookup.stdout_lines | default([]) | join(', ') or 'no records' }}
+          If you have already set this up, you may need to wait an hour.

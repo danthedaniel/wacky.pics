@@ -1,0 +1,33 @@
+- name: Deploy wacky.pics app
+  hosts: wacky
+  remote_user: root
+
+  handlers:
+    - name: Restart wacky-pics
+      ansible.builtin.systemd:
+        name: wacky-pics
+        state: restarted
+
+  tasks:
+    - name: Sync app code to server
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../../"
+        dest: "{{ app_dir }}/"
+        delete: true
+        rsync_opts:
+          - "--filter=':- .gitignore'"
+          - "--exclude=.git/"
+          - "--exclude=ansible/"
+          - "--exclude=scripts/"
+      become: true
+      become_user: "{{ app_user }}"
+      notify: Restart wacky-pics
+
+    - name: Install bun dependencies
+      ansible.builtin.command: "{{ bun_path }} install --frozen-lockfile"
+      args:
+        chdir: "{{ app_dir }}"
+      become: true
+      become_user: "{{ app_user }}"
+      register: bun_install
+      changed_when: "'(no changes)' not in bun_install.stdout"

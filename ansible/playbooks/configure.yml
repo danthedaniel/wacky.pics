@@ -1,0 +1,201 @@
+- name: Configure wacky.pics server
+  hosts: wacky
+  remote_user: root
+
+  handlers:
+    - name: Restart sshd
+      ansible.builtin.systemd:
+        name: sshd
+        state: restarted
+
+    - name: Reload nginx
+      ansible.builtin.systemd:
+        name: nginx
+        state: reloaded
+
+    - name: Daemon reload
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Restart wacky-pics
+      ansible.builtin.systemd:
+        name: wacky-pics
+        state: restarted
+
+  tasks:
+    # --- Packages ---
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install system packages
+      ansible.builtin.apt:
+        name: "{{ system_packages }}"
+        state: present
+
+    # --- Users ---
+
+    - name: Create web user
+      ansible.builtin.user:
+        name: "{{ app_user }}"
+        shell: /bin/bash
+        create_home: true
+
+    - name: Ensure uploads directory exists
+      ansible.builtin.file:
+        path: "{{ app_dir }}/uploads"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+
+    - name: Ensure uploads .keep file exists
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ app_dir }}/uploads/.keep"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0644"
+        force: false
+
+    # --- SSH ---
+
+    - name: Deploy sshd_config
+      ansible.builtin.template:
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: "0644"
+        validate: "sshd -t -f %s"
+      notify: Restart sshd
+
+    # --- UFW ---
+
+    - name: Set UFW default deny incoming
+      community.general.ufw:
+        direction: incoming
+        default: deny
+
+    - name: Set UFW default allow outgoing
+      community.general.ufw:
+        direction: outgoing
+        default: allow
+
+    - name: Allow UFW ports
+      community.general.ufw:
+        rule: allow
+        port: "{{ item.port | string }}"
+        proto: "{{ item.proto }}"
+      loop: "{{ ufw_allowed_ports }}"
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
+
+    # --- Unattended upgrades ---
+
+    - name: Enable auto-upgrades
+      ansible.builtin.copy:
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        owner: root
+        group: root
+        mode: "0644"
+
+    # --- Bun ---
+
+    - name: Install bun for web user
+      ansible.builtin.shell: curl -fsSL https://bun.sh/install | bash
+      args:
+        creates: "{{ bun_path }}"
+      become: true
+      become_user: "{{ app_user }}"
+
+    # --- Nginx ---
+
+    - name: Remove default nginx site
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Reload nginx
+
+    - name: Check if SSL cert exists
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ domain_name }}/fullchain.pem"
+      register: ssl_cert
+
+    - name: Deploy nginx site config
+      ansible.builtin.template:
+        src: wacky.pics.j2
+        dest: "/etc/nginx/sites-available/{{ domain_name }}"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload nginx
+
+    - name: Enable nginx site
+      ansible.builtin.file:
+        src: "/etc/nginx/sites-available/{{ domain_name }}"
+        dest: "/etc/nginx/sites-enabled/{{ domain_name }}"
+        state: link
+      notify: Reload nginx
+
+    - name: Validate nginx config
+      ansible.builtin.command: nginx -t
+      changed_when: false
+
+    # --- Systemd ---
+
+    - name: Deploy wacky-pics systemd service
+      ansible.builtin.template:
+        src: wacky-pics.service.j2
+        dest: /etc/systemd/system/wacky-pics.service
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - Daemon reload
+        - Restart wacky-pics
+
+    - name: Enable and start wacky-pics service
+      ansible.builtin.systemd:
+        name: wacky-pics
+        enabled: true
+        state: started
+
+    # --- Certbot ---
+
+    - name: Check if SSL cert directory exists
+      ansible.builtin.stat:
+        path: "/etc/letsencrypt/live/{{ domain_name }}"
+      register: certbot_cert
+
+    - name: Obtain SSL certificate with certbot
+      ansible.builtin.command: >-
+        certbot --nginx
+        -d {{ domain_name }}
+        --non-interactive
+        --agree-tos
+        {{ ('-m ' + certbot_email) if certbot_email else '--register-unsafely-without-email' }}
+      when: not certbot_cert.stat.exists
+
+    - name: Ensure certbot renewal timer is enabled
+      ansible.builtin.systemd:
+        name: certbot.timer
+        enabled: true
+        state: started
+
+    # --- Cron ---
+
+    - name: Add cleanup cron job for web user
+      ansible.builtin.cron:
+        name: "wacky.pics cleanup old uploads"
+        minute: "0"
+        hour: "4"
+        job: "/usr/bin/bash {{ app_dir }}/cleanup.sh"
+        user: "{{ app_user }}"

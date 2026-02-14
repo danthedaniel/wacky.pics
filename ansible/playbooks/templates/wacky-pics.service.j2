@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+[Unit]
+Description={{ domain_name }} web server
+After=network.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+WorkingDirectory={{ app_dir }}
+ExecStart={{ bun_path }} src/server.ts
+Restart=always
+RestartSec=5
+Environment=SITE_NAME={{ domain_name }}
+Environment=AUTH_USER={{ auth_user }}
+Environment=AUTH_PASS={{ auth_pass }}
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
