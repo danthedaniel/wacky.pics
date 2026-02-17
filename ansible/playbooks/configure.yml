@@ -51,15 +51,6 @@
         group: "{{ app_user }}"
         mode: "0755"
 
-    - name: Ensure uploads .keep file exists
-      ansible.builtin.copy:
-        content: ""
-        dest: "{{ app_dir }}/uploads/.keep"
-        owner: "{{ app_user }}"
-        group: "{{ app_user }}"
-        mode: "0644"
-        force: false
-
     # --- SSH ---
 
     - name: Deploy sshd_config

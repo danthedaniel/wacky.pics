@@ -61,7 +61,7 @@ def main():
     )
     if result.returncode != 0:
         print("Failed to install collections.", file=sys.stderr)
-        sys.exit(1)
+        sys.exit(result.returncode)
 
     # Run init playbook
     print("\nRunning init playbook...")
