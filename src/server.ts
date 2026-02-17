@@ -40,7 +40,8 @@ await app.register(fastifyRateLimit, {
 await app.register(fastifyHtml);
 
 await app.register(fastifyMultipart, {
-  limits: { fileSize: 20 * 1024 * 1024 },
+  // Upload size is limited by nginx
+  limits: { fileSize: Infinity },
 });
 
 await app.register(fastifyStatic, {

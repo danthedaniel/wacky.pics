@@ -2,6 +2,7 @@ app_user: web
 app_dir: "/home/{{ app_user }}/app"
 bun_path: "/home/{{ app_user }}/.bun/bin/bun"
 app_port: 3000
+max_upload_size_mib: 20
 system_packages:
   - htop
   - vim
