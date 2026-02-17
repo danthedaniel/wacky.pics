@@ -2,6 +2,8 @@
 
 An image and video hosting site built with [Bun](https://bun.sh), [Fastify](https://fastify.dev), and [Nginx](https://nginx.org).
 
+The setup script for this repository is built with a single-purpose fresh VM in mind. It configures SSHd, creates a user, and SSHes into the host with root using public key auth.
+
 ## Prerequisites
 
 - [Bun](https://bun.sh)
