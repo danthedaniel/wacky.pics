@@ -56,7 +56,7 @@ export function registerRoutes(app: FastifyInstance, checkAuth: Hook) {
     }, async (req, reply) => {
       const { name } = req.params as { name: string };
 
-      if (!/^[a-z0-9]{1,255}\.[a-z]{1,5}$/.test(name)) {
+      if (!/^[a-z0-9]{1,255}\.[a-z0-9]{1,5}$/.test(name)) {
         return reply.code(400).send("Invalid filename");
       }
 
