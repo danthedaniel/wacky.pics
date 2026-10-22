@@ -23,6 +23,21 @@
       become_user: "{{ app_user }}"
       notify: Restart wacky-pics
 
+    - name: Get installed bun version
+      ansible.builtin.command: "{{ bun_path }} --version"
+      become: true
+      become_user: "{{ app_user }}"
+      register: bun_installed
+      changed_when: false
+      failed_when: false
+
+    - name: Install bun {{ bun_version }}
+      ansible.builtin.shell: curl -fsSL https://bun.sh/install | bash -s "bun-v{{ bun_version }}"
+      become: true
+      become_user: "{{ app_user }}"
+      when: bun_installed.stdout != bun_version
+      notify: Restart wacky-pics
+
     - name: Install bun dependencies
       ansible.builtin.command: "{{ bun_path }} install --frozen-lockfile"
       args:

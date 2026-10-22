@@ -101,7 +101,7 @@
     # --- Bun ---
 
     - name: Install bun for web user
-      ansible.builtin.shell: curl -fsSL https://bun.sh/install | bash
+      ansible.builtin.shell: curl -fsSL https://bun.sh/install | bash -s "bun-v{{ bun_version }}"
       args:
         creates: "{{ bun_path }}"
       become: true
