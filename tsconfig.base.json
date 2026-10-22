@@ -25,7 +25,6 @@
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "jsxImportSource": "@kitajs/html",
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
     }
