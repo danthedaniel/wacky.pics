@@ -3,7 +3,7 @@ app_dir: "/home/{{ app_user }}/app"
 bun_path: "/home/{{ app_user }}/.bun/bin/bun"
 bun_version: "{{ (lookup('file', inventory_dir + '/../../package.json') | from_json).packageManager | regex_replace('^bun@', '') }}"
 app_port: 3000
-max_upload_size_mib: 20
+max_upload_size_mib: 128
 system_packages:
   - htop
   - vim
